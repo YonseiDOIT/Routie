@@ -1,100 +1,45 @@
-import { StatusBar } from 'expo-status-bar';
-import * as Font from 'expo-font';
-import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
-//import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-//import "react-native-gesture-handler";
-//import { NavigationContainer } from "@react-navigation/native";
-//import { createStackNavigator } from "@react-navigation/stack";
+import React from 'react';
+import { Text, View, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from "@react-navigation/native";
+import RoutinTopTabs from './RoutinTopTabs';
+import FloatButton from './Add';
 import megaphone from './assets/images/megaphone.png';
 import logo from './assets/images/logo.png';
 import list from './assets/images/program_list.png';
-import clock from './assets/images/clock.png';
-import dot from './assets/images/3dot.png';
-import loading_icon from './assets/images/splash/Routie_splash_icon.png';
-import { setCustomText } from 'react-native-global-props';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
 
 export default function Routin() {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  useEffect(() => {
-    async function loadFonts() {
-      await Font.loadAsync({
-        Pretendard_Thin: require('./assets/fonts/Pretendard-Thin.otf'),
-        Pretendard_ExtraLight: require('./assets/fonts/Pretendard-ExtraLight.otf'),
-        Pretendard_Light: require('./assets/fonts/Pretendard-Light.otf'),
-        Pretendard_Regular: require('./assets/fonts/Pretendard-Regular.otf'),
-        Pretendard_Medium: require('./assets/fonts/Pretendard-Medium.otf'),
-        Pretendard_SemiBold: require('./assets/fonts/Pretendard-SemiBold.otf'),
-        Pretendard_Bold: require('./assets/fonts/Pretendard-Bold.otf'),
-        Pretendard_ExtraBold: require('./assets/fonts/Pretendard-ExtraBold.otf'),
-        Pretendard_Black: require('./assets/fonts/Pretendard-Black.otf'),
-      });
-      setFontsLoaded(true);
-
-      // 폰트 로드 이후 전역 스타일 설정
-      const customTextProps = {
-        style: {
-          fontFamily: 'Pretendard_Regular',
-        },
-      };
-      setCustomText(customTextProps);
-    }
-
-    loadFonts();
-  }, []);
-
-  if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FF622A' }}>
-        <Image source={loading_icon} style={{width: 200, height: 200, resizeMode:"contain"}} />
-      </View>
-    );
-  }
-
+  const navigation = useNavigation();
   return (
     <SafeAreaProvider>
       <SafeAreaView edges={[ 'top', 'bottom']} style={{ flex: 1, backgroundColor: '#F5F1E9'}}>
-        <View style={{ flex: 1}}>
-          <View style={{flex: 2, paddingHorizontal: 22, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-            <Image source={logo} style={{width:118, height: 30}} />
-            <TouchableOpacity onPress={()=> {}}>
-              <Image source={list} style={{ width: 28, height: 26.5}} />
-            </TouchableOpacity>
-          </View>
-          <View style={{flex: 3, paddingHorizontal: 22}}>
-            <TouchableOpacity style={styles.notice_banner} onPress={() => {}}>
-              <Image source={megaphone} style={{ width: 24, height: 24, marginRight: 12}} />
-              <Text style={{ color: "#61605E", fontSize: 14, width: "90%"}}>이번주 추천활동:</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{flex: 2, paddingHorizontal: 22, flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{flex:1, alignItems: 'center'}}>
-              <TouchableOpacity onPress={()=> {}}>
-                <Text style={styles.tab}>루틴</Text>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          stickyHeaderIndices={[0]}
+        >
+          {/* 헤더 */}
+          <View style={{paddingHorizontal: 20}}>
+            <View style={{paddingVertical: 15,flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F5F1E9'}}>
+              <Image source={logo} style={{width: 125, height: 30}} />
+              <TouchableOpacity onPress={() => navigation.navigate('ProgramList')}>
+                <Image source={list} style={{ width: 28, height: 26.5}} />
               </TouchableOpacity>
             </View>
-            <View style={{flex:1, alignItems: 'center'}}>
-              <TouchableOpacity onPress={()=> {}}>
-                <Text style={styles.tab}>일정</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={{flex: 4}}></View>
           </View>
-        </View>
-        <View style={{ flex:3, backgroundColor: '#FFFFFF', paddingHorizontal: 22}}>
-          <Image source={clock} style={{width: '100%', marginVertical: 24}} />
-          <View style={[styles.box, {backgroundColor: '#FF622A',}]}>
-            <Text style={{flex:4, fontSize: 18, fontFamily: 'Pretendard_Bold', color: '#FFFFFF'}}>루틴 이름</Text>
-            <TouchableOpacity onPress={()=> {}} style={{width:40, height:40, justifyContent: 'center', alignItems: 'center'}}>
-              <Image source={dot} style={{width: 25.5, height: 6}} />
+          {/* 배너 */}
+          <View style={{paddingHorizontal: 20}}>
+            <TouchableOpacity style={[styles.notice_banner, { width: '100%'}]} onPress={() => navigation.navigate('ProgramList')}>
+              <Image source={megaphone} style={{ width: 24, height: 24, marginRight: 12, marginBottom: -3}} />
+              <Text style={{color: '#61605E', fontFamily: 'Pretendard_Medium', width: '90%'}} numberOfLines={1} ellipsizeMode='tail'>이번주의 추천활동: DO IT 2기 DEV IT 최종발표</Text>
             </TouchableOpacity>
-
           </View>
-        </View>
-
-        <StatusBar style="auto"/>
+          <View style={styles.topTabsContainer}>
+            <RoutinTopTabs />
+          </View>
+        </ScrollView>
+        <FloatButton />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -102,9 +47,9 @@ export default function Routin() {
 
 const styles = StyleSheet.create({
   notice_banner: {
-    flex: 1,
     flexDirection: 'row',
-    padding: 18,
+    paddingHorizontal: 15,
+    paddingVertical: 20,
     alignItems: 'center',
     marginVertical: 10,
     backgroundColor: '#FFFFFF',
@@ -115,13 +60,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Pretendard_SemiBold'
   },
-  box: {
-    flexDirection: 'row',
-    padding: 18,
-    alignItems: 'center',
-    marginVertical: 10,
-    height: 80,
-    borderRadius: 15,
-    fontFamily: 'Pretendard_Bold', // 추가
+  topTabsContainer: {
+    flex: 1,
+    minHeight: 400, // 필요한 만큼 높이 설정 (혹은 flex: 1)
   },
+
 });
