@@ -125,7 +125,7 @@ export default function TabRoutin() {
               width={6} // 테두리 두께
               fill={percent} // 퍼센트 값 (채워질 비율)
               tintColor="#FF622A" // 진행 색상
-              backgroundColor="#E0E0E0" // 배경 색상
+              backgroundColor="#E7E3DC" // 배경 색상
               rotation={0} // 0도부터 시작
             >
               {() => (
