@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import RNPickerSelect from 'react-native-picker-select';
 import ScrollPicker from "react-native-wheel-scrollview-picker";
 import Checkbox from 'expo-checkbox';
+import { resetToMain } from './NavigationHelper';
 import X from './assets/images/X.png'
 import down from './assets/images/down.png'
 
@@ -42,6 +43,11 @@ export default function AddRoutin() {
         setSelectedDays(updatedDays);
     };
     
+    const handleReturnMain = () => {
+        // resetToMain 함수를 호출하여 내비게이션 스택을 재설정합니다.
+        resetToMain(navigation);
+      };
+
     const categories = ['학교 프로그램', '운동', '자기계발', '생활', '식사' ];
     const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -50,16 +56,16 @@ export default function AddRoutin() {
         { label: '없음', value: 'False' },
     ];
     const itemsColor = [
-        { label: 'PointColor_02', value: '#FF622A', color: '#FF622A' },
-        { label: 'PointColor_02', value: '#61CCBF', color: '#61CCBF' },
-        { label: 'PointColor_03', value: '#FFBC0E', color: '#FFBC0E' },
-        { label: 'PointColor_04', value: '#8C5DD0', color: '#8C5DD0' },
-        { label: 'PointColor_05', value: '#FF3C8C', color: '#FF3C8C' },
-        { label: 'PointColor_06', value: '#E554C3', color: '#E554C3' },
-        { label: 'PointColor_07', value: '#5254DC', color: '#5254DC' },
-        { label: 'PointColor_08', value: '#FF8B2D', color: '#FF8B2D' },
-        { label: 'PointColor_09', value: '#9EDA35', color: '#9EDA35' },
-        { label: 'PointColor_10', value: '#9A5D2F', color: '#9A5D2F' },
+        { label: '오렌지', value: '#FF622A', color: '#FF622A' },
+        { label: '민트', value: '#61CCBF', color: '#61CCBF' },
+        { label: '옐로우', value: '#FFBC0E', color: '#FFBC0E' },
+        { label: '퍼플', value: '#8C5DD0', color: '#8C5DD0' },
+        { label: '네온핑크', value: '#FF3C8C', color: '#FF3C8C' },
+        { label: '핑크', value: '#FD65DA', color: '#FD65DA' },
+        { label: '블루', value: '#5254DC', color: '#5254DC' },
+        { label: '레드', value: '#FF2D2D', color: '#FF2D2D' },
+        { label: '그린', value: '#9EDA35', color: '#9EDA35' },
+        { label: '브라운', value: '#9A5D2F', color: '#9A5D2F' },
     ];
 
     const [selectedValueNoti, setSelectedValueNoti] = useState(itemsNotification[1].value);
@@ -95,7 +101,7 @@ export default function AddRoutin() {
     };
 
     // 종료 시간 (동일 패턴으로 구현 가능)
-    const [amPmEnd, setAmPmEnd] = useState('오후');
+    const [amPmEnd, setAmPmEnd] = useState('오전');
     const [hourEnd, setHourEnd] = useState(2);
 
     // 모달 (종료 시간)
@@ -114,11 +120,11 @@ export default function AddRoutin() {
             <ScrollView style={{ flex: 1, backgroundColor: routie_01}} stickyHeaderIndices={[0]}>
                 <View style={{paddingHorizontal: 20, backgroundColor: '#F5F1E9'}}>
                     <View style={{paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                        <TouchableOpacity style={{width: 24, height: 24, zIndex: 10}} onPress={() => navigation.navigate('Main', { screen: 'Routin' })}>
+                        <TouchableOpacity style={{width: 24, height: 24, zIndex: 10}} onPress={handleReturnMain}>
                             <Image source={X} style={{width: 24, height: 24}}/>
                         </TouchableOpacity>
                         <Text style={[styles.text_header, { position: 'absolute', left: 0, right: 0, textAlign: 'center' }]}>일정 추가</Text>
-                        <TouchableOpacity style={{backgroundColor: routie_03, paddingHorizontal: 15, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: 50}} onPress={() => navigation.navigate('Main', { screen: 'Routin' })}>
+                        <TouchableOpacity style={{backgroundColor: routie_03, paddingHorizontal: 15, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: 50}} onPress={handleReturnMain}>
                             <Text style={{fontFamily: 'Pretendard_Medium',fontSize: 14, color: routie_06}}>완료</Text>
                         </TouchableOpacity>
                     </View>

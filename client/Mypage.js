@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
-import { setCustomText } from 'react-native-global-props';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import setting from './assets/images/setting.png';
 
-export default function Routin() {
+export default function Mypage() {
   return (
     <SafeAreaProvider>
       <SafeAreaView edges={[ 'top', 'bottom']} style={{ flex: 1, backgroundColor: '#F5F1E9', paddingHorizontal: 20}}>

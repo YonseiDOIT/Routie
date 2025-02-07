@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import RNPickerSelect from 'react-native-picker-select';
 import ScrollPicker from "react-native-wheel-scrollview-picker";
 import Checkbox from 'expo-checkbox';
+import { resetToMain } from './NavigationHelper';
 import X from './assets/images/X.png'
 import down from './assets/images/down.png'
 
@@ -108,17 +109,22 @@ export default function AddRoutin() {
     const amPmData = ['오전', '오후'];
     const hourData = Array.from({ length: 12 }, (_, i) => i + 1); // [1,2,3,...,12]
 
+    const handleReturnMain = () => {
+        // resetToMain 함수를 호출하여 내비게이션 스택을 재설정합니다.
+        resetToMain(navigation);
+      };
+
   return (
     <SafeAreaProvider>
         <SafeAreaView edges={[ 'top', 'bottom']} style={{ flex: 1, backgroundColor: '#F5F1E9'}}>
             <ScrollView style={{ flex: 1, backgroundColor: routie_01}} stickyHeaderIndices={[0]}>
                 <View style={{paddingHorizontal: 20, backgroundColor: '#F5F1E9'}}>
                     <View style={{paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                        <TouchableOpacity style={{width: 24, height: 24, zIndex: 10}} onPress={() => navigation.navigate('AddRoutinList')}>
+                        <TouchableOpacity style={{width: 24, height: 24, zIndex: 10}} onPress={handleReturnMain}>
                             <Image source={X} style={{width: 24, height: 24}}/>
                         </TouchableOpacity>
                         <Text style={[styles.text_header, { position: 'absolute', left: 0, right: 0, textAlign: 'center' }]}>루틴 추가</Text>
-                        <TouchableOpacity style={{backgroundColor: routie_03, paddingHorizontal: 15, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: 50}} onPress={() => navigation.navigate('Main', { screen: 'Routin' })}>
+                        <TouchableOpacity style={{backgroundColor: routie_03, paddingHorizontal: 15, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: 50}} onPress={handleReturnMain}>
                             <Text style={{fontFamily: 'Pretendard_Medium',fontSize: 14, color: routie_06}}>완료</Text>
                         </TouchableOpacity>
                     </View>

@@ -26,7 +26,7 @@ SECRET_KEY = 'vz6pae8t#$cwd_%0%u0m!u$a(y7f!d!umnop@&q$9@541zuzv&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.45.126', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -61,9 +61,11 @@ CORS_ALLOW_CREDENTIALS=True
 CORS_ALLOWED_ORIGINS = [  # 허용할 도메인 명시
     "http://localhost:3000",  # React 개발 서버
     #"https://your-production-domain.com",  # 배포된 프론트엔드 도메인
-    "exp://192.168.45.152:8081",
+    "exp://192.168.45.126:8081",
+    "http://localhost:19006",
     "http://localhost:8081",
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'myroutie.urls'
 
@@ -96,6 +98,8 @@ DATABASES = {
     }
 }
 
+# Custom User 모델을 사용하도록 지정
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

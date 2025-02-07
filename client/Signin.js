@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, Image, TextInput, TouchableOpacity, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { resetToMain } from './NavigationHelper';
 import left from './assets/images/left.png';
 
 export default function SignIn() {
@@ -28,58 +29,50 @@ export default function SignIn() {
   const handleSignUp = async () => {
     const {userId, userPw, userPwRe, userName, phoneNumber, birthDate, email} = formData;
 
-    // if (!userName || !userId || !userPw || !userPwRe || !email || !phoneNumber || !birthDate) {
-    //   alert("모든 필드를 입력해주세요.");
-    //   return;
-    // }
+    if (!userName || !userId || !userPw || !userPwRe || !email || !phoneNumber || !birthDate) {
+      alert("모든 필드를 입력해주세요.");
+      return;
+    }
   
-    // if (userPw !== userPwRe) {
-    //   alert("비밀번호가 일치하지 않습니다.");
-    //   return;
-    // }
-  
+    if (userPw !== userPwRe) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+    console.log("회원가입 요청 시작...");
     try {
       const fetchData = {
-        userId: userId,
-        userPw: userPw,
-        userPwRe: userPwRe,
-        userName: userName,
-        phoneNumber: phoneNumber,
-        birthDate: birthDate,
-        email: email
+        userId,
+        username: userName,
+        password: userPw,
+        passwordRe: userPwRe,
+        email,
+        phonenumber: phoneNumber,
+        birthday: birthDate,
       };
-
       console.log(fetchData);
       
-      // const response = await fetch('http://<YOUR_BACKEND_URL>/register/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     username,
-      //     userid,
-      //     password,
-      //     email,
-      //     phone_number: phoneNumber,
-      //     birth_date: birthDate,
-      //   }),
-      // });
+      const response = await fetch('http://192.168.45.126:8000/users/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(fetchData),
+      });
   
-      // const data = await response.json();
-  
-      // if (response.status === 201) {
-      //   alert("회원가입 성공!");
-      //   navigation.navigate('Login'); // 회원가입 후 로그인 페이지로 이동
-      // } else {
-      //   alert(data.error || "회원가입에 실패했습니다.");
-      // }
+      const data = await response.json();
+      console.log("응답:", data);
+      
+      if (response.status === 201) {
+        alert("회원가입 성공!");
+        navigation.navigate('Login'); // 회원가입 후 로그인 페이지로 이동
+      } else {
+        alert(data.error || "회원가입에 실패했습니다.");
+      }
     } catch (error) {
       console.error(error);
       alert("서버에 연결할 수 없습니다.");
     }
   };
-  
   return (
     <SafeAreaProvider>
       <SafeAreaView edges={[ 'top', 'bottom']} style={{ flex: 1, backgroundColor: '#F5F1E9', paddingHorizontal: 20, paddingBottom: 20}}>
@@ -91,7 +84,7 @@ export default function SignIn() {
         >
           <View>
             <View style={{paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F5F1E9'}}>
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Image source={left} style={{width: 24, height: 24}}/>
               </TouchableOpacity>
               <Text style={styles.text_header}>회원가입</Text>
@@ -174,7 +167,7 @@ export default function SignIn() {
               placeholder='20000101'
               placeholderTextColor='#B8B8B8'/>
           </View>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
             <Text style={{color: "#FFFFFF", fontSize: 16 }}>회원가입</Text>
           </TouchableOpacity>
           

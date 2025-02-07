@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import Svg, { Line, Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { ScrollView } from 'react-native-gesture-handler';
-import { MaterialIcons } from '@expo/vector-icons'; // 아이콘 사용을 위해 추가
 import dot from './assets/images/3dot.png';
 import check from './assets/images/check.png';
 
 export default function TabRoutin() {
   const navigation = useNavigation();
+  const scrollRef = useRef(null); // ScrollView의 ref 생성
+
   const [isChecked1, setChecked1] = useState(false);
   const [isChecked2, setChecked2] = useState(false);
   const [isChecked3, setChecked3] = useState(false);
   const [isChecked4, setChecked4] = useState(false);
   const [isChecked5, setChecked5] = useState(false);
-  const [percent, setPercent] = useState(0); // 현재 시간의 퍼센트
+  const [percent, setPercent] = useState(0);
   const [currentTime, setCurrentTime] = useState('');
 
   const routie_Main = '#FF622A'
@@ -33,68 +34,82 @@ export default function TabRoutin() {
       const hours = now.getHours();
       const minutes = now.getMinutes();
       const seconds = now.getSeconds();
-
-      // 하루 총 초: 24h * 60m * 60s = 86400
       const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-      const progress = (totalSeconds / 86400) * 100; // 현재 시간 퍼센트 계산
-
+      const progress = (totalSeconds / 86400) * 100;
       setPercent(progress);
       setCurrentTime(
         `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
       );
     };
 
-    updateTime(); // 초기 호출
-    const interval = setInterval(updateTime, 1000); // 매초 업데이트
-
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 클리어
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  const size = Dimensions.get('window').width * 0.8; // 원형 크기
-  const outerSize = Dimensions.get('window').width * 0.73; // 원형 크기
-  const innerSize = Dimensions.get('window').width * 0.6; // 원형 크기
-  const outerRadius = outerSize / 2; // 외부 원의 반지름
-  const innerRadius = innerSize / 2; // 내부 원의 반지름
+  const size = Dimensions.get('window').width * 0.8;
+  const outerSize = Dimensions.get('window').width * 0.73;
+  const innerSize = Dimensions.get('window').width * 0.6;
+  const outerRadius = outerSize / 2;
+  const innerRadius = innerSize / 2;
 
-  const segmentCount = 24; // 분할 개수
-  const angleIncrement = (2 * Math.PI) / segmentCount; // 각 분할의 각도
+  const segmentCount = 24;
+  const angleIncrement = (2 * Math.PI) / segmentCount;
 
   const segments_out = [];
   const segments_in = [];
   const Colors_out= [
+    routie_02, routie_02, routie_02, routie_02, routie_02, routie_02,     
     routie_02, routie_02, routie_03, routie_03, routie_03, routie_03,
     routie_02, routie_03, routie_03, routie_03, routie_02, routie_02, 
     routie_05, routie_05, routie_02, routie_02, routie_02, routie_02, 
-    routie_02, routie_02, routie_02, routie_02, routie_02, routie_02,     
   ];
   const Colors_in = [
+    routie_01, routie_01, routie_01, routie_01, routie_01, routie_01,
     routie_Main, routie_01, routie_01, routie_01, routie_01, routie_01, 
     '#FF3C8C', routie_01, routie_01, routie_01, routie_01, routie_01,
     '#FF3C8C', routie_01, routie_01, '#F9B506', routie_01, '#61CCBF', 
-    routie_01, routie_01, routie_01, routie_01, routie_01, routie_01,
   ];
 
+  // ScrollView의 ref는 이미 선언되어 있다고 가정 (예: const scrollRef = useRef(null);)
+  const allowedMapping = {
+    6: 440,    // 6-7시 segment → 첫 번째 컴포넌트 (offset 0)
+    12: 550,  // 12-13시 segment → 두 번째 컴포넌트 (offset 60)
+    18: 660, // 18-19시 segment → 세 번째 컴포넌트 (offset 120)
+    21: 770, // 21-22시 segment → 네 번째 컴포넌트 (offset 180)
+    23: 880, // 23-24시 segment → 다섯 번째 컴포넌트 (offset 240)
+  };
+
+  const handleSegmentPress = (index) => {
+    // 만약 index가 허용된 값에 포함되어 있다면 target offset을 구하고 스크롤
+    if (allowedMapping.hasOwnProperty(index)) {
+      const targetOffset = allowedMapping[index];
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({ y: targetOffset, animated: true });
+      }
+    } else {
+      // 허용되지 않은 segment를 터치한 경우 아무 동작도 하지 않음
+    }
+  };
 
   for (let i = 0; i < segmentCount; i++) {
-    const startAngle = i * angleIncrement;
-    const endAngle = (i + 1) * angleIncrement;
+    const startAngle = i * angleIncrement - Math.PI / 2;;
+    const endAngle = (i + 1) * angleIncrement - Math.PI / 2;;
 
-    // 시작점과 끝점 계산
-    const x1 =  outerRadius +  outerRadius * Math.cos(startAngle);
-    const y1 =  outerRadius +  outerRadius * Math.sin(startAngle);
-    const x2 =  outerRadius +  outerRadius * Math.cos(endAngle);
-    const y2 =  outerRadius +  outerRadius * Math.sin(endAngle);
+    const x1 = outerRadius + outerRadius * Math.cos(startAngle);
+    const y1 = outerRadius + outerRadius * Math.sin(startAngle);
+    const x2 = outerRadius + outerRadius * Math.cos(endAngle);
+    const y2 = outerRadius + outerRadius * Math.sin(endAngle);
 
-    const x1_inner = outerRadius + innerRadius * Math.cos(startAngle); // 동일한 중심 좌표 사용
+    const x1_inner = outerRadius + innerRadius * Math.cos(startAngle);
     const y1_inner = outerRadius + innerRadius * Math.sin(startAngle);
     const x2_inner = outerRadius + innerRadius * Math.cos(endAngle);
     const y2_inner = outerRadius + innerRadius * Math.sin(endAngle);
 
-    // Path를 사용해 부채꼴 모양 섹션 생성
     const path_out = `
-      M ${ outerRadius},${ outerRadius} 
+      M ${outerRadius},${outerRadius} 
       L ${x1},${y1} 
-      A ${ outerRadius},${ outerRadius} 0 0,1 ${x2},${y2} 
+      A ${outerRadius},${outerRadius} 0 0,1 ${x2},${y2} 
       Z
     `;
     const path_in = `
@@ -104,41 +119,61 @@ export default function TabRoutin() {
       Z
     `;
 
-    // 랜덤 색상 적용
     const fillColor = Colors_out[i % Colors_out.length];
     const fillColor_in = Colors_in[i % Colors_in.length];
 
-    // 각 섹션을 배열에 추가
-    segments_out.push(<Path key={`segment-${i}`} d={path_out} fill={fillColor} stroke="#FFF" strokeWidth={0} />);
-    segments_in.push(<Path key={`segment-${i}`} d={path_in} fill={fillColor_in} stroke="#FFF" strokeWidth={0} />);
+    // segments_out에 onPress 추가 (예: 해당 segment를 터치하면 스크롤 이동)
+    segments_out.push(
+      <Path
+        key={`segment-${i}`}
+        d={path_out}
+        fill={fillColor}
+        stroke="#FFF"
+        strokeWidth={0}
+      />
+    );
+    segments_in.push(
+      <Path
+        key={`segment-in-${i}`}
+        d={path_in}
+        fill={fillColor_in}
+        stroke="#FFF"
+        strokeWidth={0}
+        pointerEvents="auto" // 또는 "auto"
+        onPressIn={() => handleSegmentPress(i)}
+      />
+    );
   }
   
   return (
-    <ScrollView>
+    <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
       <View style={styles.container}>
         <View style={styles.timeBar}>
-          <Text style={[styles.timeLabel, { }]}>24</Text>
+          <Text style={[styles.timeLabel]}>24</Text>
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={[styles.timeLabel, { }]}>18 </Text>
+            <Text style={[styles.timeLabel]}>18 </Text>
             <AnimatedCircularProgress
-              size={size} // 원형 크기
-              width={6} // 테두리 두께
-              fill={percent} // 퍼센트 값 (채워질 비율)
-              tintColor="#FF622A" // 진행 색상
-              backgroundColor="#E7E3DC" // 배경 색상
-              rotation={0} // 0도부터 시작
+              size={size}
+              width={6}
+              fill={percent}
+              tintColor="#FF622A"
+              backgroundColor="#E7E3DC"
+              rotation={0}
             >
               {() => (
-                <Svg width={outerSize} height={outerSize}>
+                <Svg width={outerSize} height={outerSize} pointerEvents="box-none">
+                  <Circle cx={outerRadius} cy={outerRadius} r={outerRadius} fill="#F5F1E9" />
                   {segments_out}
+                  <Circle cx={outerRadius} cy={outerRadius} r={innerRadius} fill="#FFFFFF" />
                   {segments_in}
                 </Svg>
               )}
             </AnimatedCircularProgress>
-            <Text style={[styles.timeLabel, { }]}> 6  </Text>
+            <Text style={[styles.timeLabel]}> 6  </Text>
           </View>
-          <Text style={[styles.timeLabel, { }]}>12</Text>
+          <Text style={[styles.timeLabel]}>12</Text>
         </View>
+        {/* 하단 컴포넌트들 */}
         <View style={[styles.box, { backgroundColor: isChecked1 ? '#B8B8B8' : '#FF622A' }]}>
           <TouchableOpacity
             style={styles.checkbox}
@@ -211,6 +246,7 @@ export default function TabRoutin() {
         </View>
       </View>
     </ScrollView>
+
   );
 }
 
@@ -221,20 +257,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF', 
     padding: 20
   },
-  timeBar:{
+  timeBar: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 20,
   },
-  timeLabel:{
-    alignItems: 'center',
+  timeLabel: {
     fontSize: 14,
     color: '#B8B8B8',
   },
   box: {
     flexDirection: 'row',
-    padding: 28,
+    paddingHorizontal: 25,
+    paddingVertical: 32,
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 20,
@@ -246,7 +282,5 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 3,
     backgroundColor: '#FFFFFF',
-    borderStyle: 'none',
-    borderWidth: 0
   }
 });

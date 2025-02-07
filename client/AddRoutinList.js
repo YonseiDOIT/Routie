@@ -3,7 +3,7 @@ import { Text, View, StyleSheet, Image, TextInput, TouchableOpacity } from 'reac
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from "@react-navigation/native";
-import RNPickerSelect from 'react-native-picker-select';
+import { resetToMain } from './NavigationHelper';
 import X from './assets/images/X.png'
 import link from './assets/images/link.png'
 
@@ -23,6 +23,11 @@ export default function AddRoutinList() {
     const routie_06 = '#61605E'
     const routie_07 = '#2B2927'  
 
+    const handleReturnMain = () => {
+      // resetToMain 함수를 호출하여 내비게이션 스택을 재설정합니다.
+      resetToMain(navigation);
+    };
+
   return (
     <SafeAreaProvider>
         <SafeAreaView edges={[ 'top', 'bottom']} style={{ flex: 1, backgroundColor: '#F5F1E9'}}>
@@ -30,7 +35,7 @@ export default function AddRoutinList() {
               <View>
                 <View style={{paddingHorizontal: 20, backgroundColor: '#F5F1E9'}}>
                     <View style={{paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                    <TouchableOpacity onPress={() => navigation.navigate('Main', { screen: 'Routin' })}>
+                    <TouchableOpacity onPress={handleReturnMain}>
                         <Image source={X} style={{width: 24, height: 24}}/>
                     </TouchableOpacity>
                     <TouchableOpacity style={{backgroundColor: routie_02, paddingHorizontal: 15, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: 50, borderWidth: 1, borderColor: routie_04}} onPress={() => navigation.navigate('AddRoutin')}>

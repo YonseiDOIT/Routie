@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
-import Checkbox from 'expo-checkbox';
+import { useNavigation } from "@react-navigation/native";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import Svg, { Line, Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { ScrollView } from 'react-native-gesture-handler';
-import { MaterialIcons } from '@expo/vector-icons'; // 아이콘 사용을 위해 추가
 import dot from './assets/images/3dot.png';
-import check from './assets/images/check.png';
 
 export default function TabRoutin() {
+  const navigation = useNavigation();
+  const scrollRef = useRef(null); // ScrollView의 ref 생성
+
   const [isChecked1, setChecked1] = useState(false);
   const [isChecked2, setChecked2] = useState(false);
   const [isChecked3, setChecked3] = useState(false);
@@ -59,22 +60,46 @@ export default function TabRoutin() {
   const segments_out = [];
   const segments_in = [];
   const Colors_out= [
+    routie_02, routie_02, routie_02, routie_02, routie_02, routie_02,     
     routie_02, routie_02, routie_Main, routie_Main, routie_Main, routie_Main, 
     routie_02, routie_Main, routie_Main, routie_Main, routie_02, routie_02, 
     '#61CCBF', '#61CCBF', routie_02, routie_02, routie_02, routie_02, 
-    routie_02, routie_02, routie_02, routie_02, routie_02, routie_02,     
   ];
   const Colors_in = [
+    routie_01, routie_01, routie_01, routie_01, routie_01, routie_01,
     routie_03, routie_01, routie_01, routie_01, routie_01, routie_01, 
     routie_05, routie_01, routie_01, routie_01, routie_01, routie_01,
     routie_05, routie_01, routie_01, routie_03, routie_01, routie_06, 
-    routie_01, routie_01, routie_01, routie_01, routie_01, routie_01,
   ];
 
+  // ScrollView의 ref는 이미 선언되어 있다고 가정 (예: const scrollRef = useRef(null);)
+  const allowedMapping = {
+    8: 440,
+    9: 440,
+    10: 440,
+    11: 440,
+    13: 550,
+    14: 550,
+    15: 550,
+    18: 660,
+    19: 660,
+  };
+
+  const handleSegmentPress = (index) => {
+    // 만약 index가 허용된 값에 포함되어 있다면 target offset을 구하고 스크롤
+    if (allowedMapping.hasOwnProperty(index)) {
+      const targetOffset = allowedMapping[index];
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({ y: targetOffset, animated: true });
+      }
+    } else {
+      // 허용되지 않은 segment를 터치한 경우 아무 동작도 하지 않음
+    }
+  };
 
   for (let i = 0; i < segmentCount; i++) {
-    const startAngle = i * angleIncrement;
-    const endAngle = (i + 1) * angleIncrement;
+    const startAngle = i * angleIncrement - Math.PI / 2;;
+    const endAngle = (i + 1) * angleIncrement - Math.PI / 2;;
 
     // 시작점과 끝점 계산
     const x1 =  outerRadius +  outerRadius * Math.cos(startAngle);
@@ -89,9 +114,9 @@ export default function TabRoutin() {
 
     // Path를 사용해 부채꼴 모양 섹션 생성
     const path_out = `
-      M ${ outerRadius},${ outerRadius} 
+      M ${outerRadius},${outerRadius} 
       L ${x1},${y1} 
-      A ${ outerRadius},${ outerRadius} 0 0,1 ${x2},${y2} 
+      A ${outerRadius},${outerRadius} 0 0,1 ${x2},${y2} 
       Z
     `;
     const path_in = `
@@ -105,18 +130,36 @@ export default function TabRoutin() {
     const fillColor = Colors_out[i % Colors_out.length];
     const fillColor_in = Colors_in[i % Colors_in.length];
 
-    // 각 섹션을 배열에 추가
-    segments_out.push(<Path key={`segment-${i}`} d={path_out} fill={fillColor} stroke="#FFF" strokeWidth={0} />);
-    segments_in.push(<Path key={`segment-${i}`} d={path_in} fill={fillColor_in} stroke="#FFF" strokeWidth={0} />);
+    // segments_out에 onPress 추가 (예: 해당 segment를 터치하면 스크롤 이동)
+    segments_out.push(
+      <Path
+        key={`segment-${i}`}
+        d={path_out}
+        fill={fillColor}
+        stroke="#FFF"
+        strokeWidth={0}
+        pointerEvents="auto" // 또는 "auto"
+        onPressIn={() => handleSegmentPress(i)}
+      />
+    );
+    segments_in.push(
+      <Path
+        key={`segment-in-${i}`}
+        d={path_in}
+        fill={fillColor_in}
+        stroke="#FFF"
+        strokeWidth={0}
+      />
+    );
   }
   
   return (
-    <ScrollView>
+    <ScrollView ref={scrollRef}>
       <View style={styles.container}>
         <View style={styles.timeBar}>
-          <Text style={[styles.timeLabel, { }]}>24</Text>
+          <Text style={[styles.timeLabel]}>24</Text>
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={[styles.timeLabel, { }]}>18 </Text>
+            <Text style={[styles.timeLabel]}>18 </Text>
             <AnimatedCircularProgress
               size={size} // 원형 크기
               width={6} // 테두리 두께
@@ -127,32 +170,40 @@ export default function TabRoutin() {
             >
               {() => (
                 <Svg width={outerSize} height={outerSize}>
+                  <Circle cx={outerRadius} cy={outerRadius} r={outerRadius} fill="#F5F1E9" />
                   {segments_out}
+                  <Circle cx={outerRadius} cy={outerRadius} r={innerRadius} fill="#FFFFFF" />
                   {segments_in}
                 </Svg>
               )}
             </AnimatedCircularProgress>
-            <Text style={[styles.timeLabel, { }]}> 6  </Text>
+            <Text style={[styles.timeLabel]}> 6  </Text>
           </View>
-          <Text style={[styles.timeLabel, { }]}>12</Text>
+          <Text style={[styles.timeLabel]}>12</Text>
         </View>
         <View style={[styles.box, { backgroundColor: '#FF622A' }]}>
           <View style={{width: '75%'}}>
             <Text style={{fontFamily: 'Pretendard_Bold', fontSize: 18, color: '#FFFFFF' }}>오전 수업</Text>
           </View>
-          <Image source={dot} style={{width: 25.5, height: 6, opacity: 0.3, justifyContent: 'center', alignItems: 'flex-end'}} />
+          <TouchableOpacity style={{width: 25.5, height: 25.5, justifyContent: 'center'}} onPress={() => navigation.navigate('AddSchedule')}>
+            <Image source={dot} style={{width: 25.5, height: 6, opacity: 0.3, justifyContent: 'center', alignItems: 'flex-end'}} />            
+          </TouchableOpacity>
         </View>
         <View style={[styles.box, { backgroundColor: '#FF622A' }]}>
           <View style={{width: '75%'}}>
             <Text style={{fontFamily: 'Pretendard_Bold', fontSize: 18, color: '#FFFFFF' }}>오후 수업</Text>
           </View>
-          <Image source={dot} style={{width: 25.5, height: 6, opacity: 0.3, justifyContent: 'center', alignItems: 'flex-end'}} />
+          <TouchableOpacity style={{width: 25.5, height: 25.5, justifyContent: 'center'}} onPress={() => navigation.navigate('AddSchedule')}>
+            <Image source={dot} style={{width: 25.5, height: 6, opacity: 0.3, justifyContent: 'center', alignItems: 'flex-end'}} />            
+          </TouchableOpacity>
         </View>
         <View style={[styles.box, { backgroundColor: '#61CCBF' }]}>
           <View style={{width: '75%'}}>
             <Text style={{fontFamily: 'Pretendard_Bold', fontSize: 18, color: '#FFFFFF'}}>DO IT 팀 회의</Text>
           </View>
-          <Image source={dot} style={{width: 25.5, height: 6, opacity: 0.3, justifyContent: 'center', alignItems: 'flex-end'}} />
+          <TouchableOpacity style={{width: 25.5, height: 25.5, justifyContent: 'center'}} onPress={() => navigation.navigate('AddSchedule')}>
+            <Image source={dot} style={{width: 25.5, height: 6, opacity: 0.3, justifyContent: 'center', alignItems: 'flex-end'}} />            
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -179,7 +230,8 @@ const styles = StyleSheet.create({
   },
   box: {
     flexDirection: 'row',
-    padding: 28,
+    paddingHorizontal: 25,
+    paddingVertical: 32,
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 20,

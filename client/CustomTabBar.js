@@ -21,6 +21,7 @@ export default function CustomTabBar({ state, descriptors, navigation }) {
         justifyContent: 'space-around',
         alignItems: 'center',
         elevation: 0,
+        paddingHorizontal: 30
       }}
     >
       {visualOrder.map((routeName) => {
